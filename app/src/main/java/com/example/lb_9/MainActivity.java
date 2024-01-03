@@ -1,72 +1,60 @@
 package com.example.lb_9;
+import android.content.Intent;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity {
     private TextView orientationTextView;
     private SensorManager sensorManager;
     private Sensor rotationVectorSensor;
+    Button button1;
+    Button button2;
+    Button button3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        button1 = findViewById(R.id.button1);
+        button2 = findViewById(R.id.button2);
+        button3 = findViewById(R.id.button3);
 
-        orientationTextView = findViewById(R.id.orientationTextView);
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        // Получаем экземпляр SensorManager для работы с сенсорами
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+                Intent intent = new Intent(MainActivity.this,CompassActivity.class);
+                startActivity(intent);
 
-        // Получаем экземпляр Rotation Vector Sensor
-        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            }
+        });
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(MainActivity.this,AccelerometerActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(MainActivity.this, LightActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Регистрируем SensorEventListener
-        sensorManager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Отменяем регистрацию SensorEventListener
-        sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            // Получаем значения вектора поворота
-            float[] rotationMatrix = new float[9];
-            float[] rotationVector = new float[3];
-            System.arraycopy(event.values, 0, rotationVector, 0, 3);
-            SensorManager.getRotationMatrixFromVector(rotationMatrix, rotationVector);
-
-            // Получаем ориентацию в радианах
-            float[] orientation = new float[3];
-            SensorManager.getOrientation(rotationMatrix, orientation);
-
-            // Преобразуем радианы в градусы и округляем до десятых
-            float azimuth = (float) Math.toDegrees(orientation[0]);
-            float pitch = (float) Math.toDegrees(orientation[1]);
-            float roll = (float) Math.toDegrees(orientation[2]);
-
-            // Отображаем значения ориентации
-            orientationTextView.setText("Orientation: Azimuth - " + String.format("%.1f", azimuth)
-                    + ", Pitch - " + String.format("%.1f", pitch)
-                    + ", Roll - " + String.format("%.1f", roll));
-        }
-    }
-}
